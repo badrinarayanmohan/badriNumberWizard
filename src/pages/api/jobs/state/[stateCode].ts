@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import SerplyClient from '@/services/serplyClient';
+import { generateMockJobs } from '@/services/mockJobData';
 import { getStateName, isValidStateCode } from '@/data/usStates';
 import type { JobSearchResponse } from '@/types/job';
+
+const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true';
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,26 +25,50 @@ export default async function handler(
       return res.status(400).json({ error: 'Invalid state code' });
     }
 
-    const apiKey = process.env.SERPLY_API_KEY;
+    const stateName = getStateName(stateCode.toUpperCase());
+    const query = (q as string) || '';
+    const count = num ? parseInt(num as string) : 50;
 
-    if (!apiKey) {
-      console.error('SERPLY_API_KEY is not configured');
-      return res.status(500).json({ error: 'API key not configured' });
+    // Use mock data if configured
+    if (USE_MOCK_DATA) {
+      console.log(`Using mock data for state: ${stateName}`);
+      const jobs = generateMockJobs(query, stateName, count);
+
+      const response: JobSearchResponse = {
+        jobs,
+        totalResults: jobs.length,
+        searchQuery: query,
+        location: stateName
+      };
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      return res.status(200).json(response);
     }
 
-    const stateName = getStateName(stateCode.toUpperCase());
+    // Use real Serply API
+    const apiKey = process.env.SERPLY_API_KEY;
+
+    if (!apiKey || apiKey === 'your_serply_api_key_here') {
+      console.error('SERPLY_API_KEY is not configured');
+      return res.status(500).json({
+        error: 'API key not configured. Please set SERPLY_API_KEY in .env.local or set USE_MOCK_DATA=true for testing.'
+      });
+    }
+
     const serplyClient = new SerplyClient(apiKey);
 
     const jobs = await serplyClient.searchJobs({
-      query: (q as string) || '',
+      query,
       location: stateName,
-      num: num ? parseInt(num as string) : 50
+      num: count
     });
 
     const response: JobSearchResponse = {
       jobs,
       totalResults: jobs.length,
-      searchQuery: (q as string) || '',
+      searchQuery: query,
       location: stateName
     };
 

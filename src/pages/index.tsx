@@ -8,6 +8,7 @@ import { StateInfo } from '@/components/map/StateInfo';
 import { JobListings } from '@/components/jobs/JobListings';
 import { JobDetails } from '@/components/jobs/JobDetails';
 import { SearchHistory } from '@/components/search/SearchHistory';
+import { InfoBanner } from '@/components/common/InfoBanner';
 import { useJobStore } from '@/store/jobStore';
 import type { SearchFilters, SearchHistoryItem } from '@/types/job';
 
@@ -87,6 +88,14 @@ export default function Home() {
       </Head>
 
       <Layout>
+        {/* Development Mode Banner */}
+        {process.env.NODE_ENV === 'development' && (
+          <InfoBanner
+            type="warning"
+            message="🚀 Running in development mode with mock data. To use real job data, add your Serply.io API key to .env.local and set USE_MOCK_DATA=false"
+          />
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Panel - Map and Search */}
           <aside className="lg:col-span-3 space-y-4">
