@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useBookStore } from '../store/bookStore';
 
 export const usePageNavigation = () => {
-  const { currentPage, totalPages, nextPage, previousPage, goToPage, isAnimating } = useBookStore();
+  const { currentPage, totalPages, nextPage, previousPage, goToPage, isAnimating, isBookOpen, openBook, direction } = useBookStore();
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (isAnimating) return;
@@ -28,7 +28,6 @@ export const usePageNavigation = () => {
         goToPage(totalPages - 1);
         break;
       default:
-        // Check for number keys 1-9 for quick navigation
         const num = parseInt(event.key);
         if (num >= 1 && num <= 9 && num <= totalPages) {
           goToPage(num - 1);
@@ -49,7 +48,10 @@ export const usePageNavigation = () => {
     previousPage,
     goToPage,
     isAnimating,
+    isBookOpen,
+    openBook,
+    direction,
     canGoNext: currentPage < totalPages - 1,
-    canGoPrevious: currentPage > 0,
+    canGoPrevious: isBookOpen && currentPage > 0,
   };
 };

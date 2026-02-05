@@ -6,10 +6,10 @@ interface NavigationProps {
 }
 
 export const Navigation = ({ totalPages }: NavigationProps) => {
-  const { currentPage, goToPage, nextPage, previousPage, canGoNext, canGoPrevious, isAnimating } = usePageNavigation();
+  const { currentPage, goToPage, nextPage, previousPage, canGoNext, canGoPrevious, isAnimating, isBookOpen } = usePageNavigation();
 
   return (
-    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-gray-200 py-4 px-6">
+    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-gray-200 py-3 px-6 z-50">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         <button
           onClick={previousPage}
@@ -49,15 +49,15 @@ export const Navigation = ({ totalPages }: NavigationProps) => {
               : 'text-gray-300 cursor-not-allowed'
           }`}
         >
-          <span className="hidden sm:inline">Next</span>
+          <span className="hidden sm:inline">{!isBookOpen ? 'Open Book' : 'Next'}</span>
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
 
-      <div className="text-center mt-2 text-sm text-gray-500">
-        Page {currentPage + 1} of {totalPages}
+      <div className="text-center mt-1 text-sm text-gray-500">
+        {isBookOpen ? `Page ${currentPage} of ${totalPages - 1}` : 'Click cover to open'}
         <span className="hidden sm:inline text-gray-400 ml-2">(Use arrow keys to navigate)</span>
       </div>
     </div>
